@@ -1,0 +1,39 @@
+{
+  "id": "dustline",
+  "name": "Dustline",
+  "abbrev": "DLN",
+  "version": "0.1.0",
+  "description": "Compact subtractive voice with oscillator blend, noise, resonant filter, and drive",
+  "author": "Local",
+  "ui": "ui.js",
+  "ui_chain": "ui_chain.js",
+  "dsp": "dsp.so",
+  "api_version": 2,
+  "capabilities": {
+    "audio_out": true,
+    "audio_in": false,
+    "midi_in": true,
+    "midi_out": false,
+    "chainable": true,
+    "component_type": "sound_generator",
+    "ui_hierarchy": {
+      "levels": {
+        "root": {
+          "name": "Dustline",
+          "params": [
+            { "key": "volume", "name": "Volume", "type": "float", "min": 0, "max": 1, "default": 0.72, "step": 0.01 },
+            { "key": "wave", "name": "Wave", "type": "float", "min": 0, "max": 1, "default": 0.35, "step": 0.01 },
+            { "key": "noise", "name": "Noise", "type": "float", "min": 0, "max": 1, "default": 0.18, "step": 0.01 },
+            { "key": "cutoff", "name": "Cutoff", "type": "float", "min": 0, "max": 1, "default": 0.42, "step": 0.01 },
+            { "key": "resonance", "name": "Reso", "type": "float", "min": 0, "max": 0.95, "default": 0.18, "step": 0.01 },
+            { "key": "attack", "name": "Attack", "type": "float", "min": 0.001, "max": 2, "default": 0.008, "step": 0.001 },
+            { "key": "release", "name": "Release", "type": "float", "min": 0.02, "max": 6, "default": 0.55, "step": 0.01 },
+            { "key": "drive", "name": "Drive", "type": "float", "min": 0, "max": 1, "default": 0.22, "step": 0.01 },
+            { "key": "bend_range", "name": "Bend", "type": "float", "min": 0, "max": 12, "default": 2, "step": 0.1 }
+          ],
+          "knobs": ["volume", "wave", "noise", "cutoff"]
+        }
+      }
+    }
+  }
+}

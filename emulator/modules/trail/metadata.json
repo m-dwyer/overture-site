@@ -1,0 +1,24 @@
+{
+  "params": {
+    "time": "Free delay time (~10 ms to 2 s), used when Sync is set to Free. Short values give slapback and comb effects; long values give wide echoes.",
+    "sync": "Tempo sync division. Free uses the Time knob; otherwise the delay locks to the host tempo: 1/16, 1/8T, 1/8, 1/8 dotted, 1/4, 1/4 dotted, 1/2, 3/4, 1/1 bar. (On the device this tracks Move's tempo; offline and in the browser it uses 120 BPM.)",
+    "feedback": "How much delayed signal is fed back. Higher values give more repeats; the feedback is filtered and saturated, but high settings still create long tails.",
+    "tone": "Color of the repeats. Low = dark/dub (each echo gets thinner and warmer); high = open and bright.",
+    "mod": "Depth of a slow LFO that wobbles the delay time, adding tape/analog chorus and movement to the tail.",
+    "width": "Stereo character. Low keeps channels independent; centre is natural stereo; high becomes a ping-pong as feedback crosses between left and right.",
+    "drive": "Tape-style saturation in the feedback path. Higher values warm and compress the repeats, good for driven dub sustains.",
+    "space": "Blends a reverb tail into the wet signal. Low = pure delay; high = the repeats smear into a lush reverberant wash.",
+    "mix": "Wet/dry balance. Low keeps the original signal forward for insert use; high emphasizes the delayed/reverberant signal."
+  },
+  "randomize": {
+    "time": { "min": 0.03, "max": 0.55, "mode": "around_default" },
+    "sync": { "min": 0, "max": 8, "mode": "bounded" },
+    "feedback": { "min": 0.08, "max": 0.68, "mode": "bounded" },
+    "tone": { "min": 0.18, "max": 0.82, "mode": "bounded" },
+    "mod": { "min": 0, "max": 0.55, "mode": "bounded" },
+    "width": { "min": 0.15, "max": 0.95, "mode": "bounded" },
+    "drive": { "min": 0, "max": 0.62, "mode": "bounded" },
+    "space": { "min": 0, "max": 0.58, "mode": "bounded" },
+    "mix": { "min": 0.08, "max": 0.72, "mode": "bounded" }
+  }
+}
