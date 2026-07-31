@@ -89,7 +89,14 @@ class ModuleProcessor extends AudioWorkletProcessor {
 
       this.ready = true;
       this.queue.splice(0).forEach((message) => this.handle(message));
-      this.port.postMessage({ type: "ready", mode: this.mode });
+      // Linear memory is the one part of a module's device footprint the browser
+      // can know exactly rather than model — it is the same allocation the module
+      // makes on Move. The main thread feeds it to the Move budget.
+      this.port.postMessage({
+        type: "ready",
+        mode: this.mode,
+        linearMemoryBytes: this.exports.memory.buffer.byteLength,
+      });
     } catch (error) {
       this.port.postMessage({
         type: "error",
@@ -169,7 +176,14 @@ class ModuleProcessor extends AudioWorkletProcessor {
     try {
       if (this.mode === "midi_fx") this.exports.mf_init();
       else this.exports.sch_init();
-      this.port.postMessage({ type: "ready", mode: this.mode });
+      // Linear memory is the one part of a module's device footprint the browser
+      // can know exactly rather than model — it is the same allocation the module
+      // makes on Move. The main thread feeds it to the Move budget.
+      this.port.postMessage({
+        type: "ready",
+        mode: this.mode,
+        linearMemoryBytes: this.exports.memory.buffer.byteLength,
+      });
     } catch (error) {
       this.port.postMessage({
         type: "error",
