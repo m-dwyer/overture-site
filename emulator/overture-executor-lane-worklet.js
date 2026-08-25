@@ -12,6 +12,12 @@
 
 const AUDIO_BLOCK_FRAMES = 128;
 const MIDI_FX_MAX_MESSAGES = 32;
+
+// The adapter handle this lane addresses. One worklet is one WASM instance is
+// one Executor Destination, so a lane never needs a second one. The Rack build
+// of the same adapter carries four, because its four Chains are fed by the
+// executor inside the one instance that holds the Rack.
+const ADAPTER = 0;
 const MAXIMUM_BLOCK_ACTIONS = 1536;
 const MAXIMUM_CAPTURE_ACTIONS = 4096;
 const MAXIMUM_CAPTURE_SAMPLES = 4194304;
@@ -131,7 +137,7 @@ class OvertureExecutorLaneProcessor extends AudioWorkletProcessor {
       if (
         !Array.isArray(nonce) ||
         nonce.length !== 4 ||
-        this.adapter.overture_adapter_create(...nonce) !== 0
+        this.adapter.overture_adapter_create(ADAPTER, ...nonce) !== 0
       ) {
         throw new Error("invalid executor incarnation");
       }
@@ -181,13 +187,13 @@ class OvertureExecutorLaneProcessor extends AudioWorkletProcessor {
   }
 
   loadCueOutput() {
-    const length = this.adapter.overture_adapter_cue_output_len();
+    const length = this.adapter.overture_adapter_cue_output_len(ADAPTER);
     if (length !== AUDIO_BLOCK_FRAMES * 2) {
       throw new Error(`unexpected cue output length: ${length}`);
     }
     return new Int16Array(
       this.adapter.memory.buffer,
-      this.adapter.overture_adapter_cue_output_ptr(),
+      this.adapter.overture_adapter_cue_output_ptr(ADAPTER),
       length,
     );
   }
@@ -217,6 +223,7 @@ class OvertureExecutorLaneProcessor extends AudioWorkletProcessor {
 
   configure(configuration) {
     const result = this.adapter.overture_adapter_configure(
+      ADAPTER,
       configuration.kind,
       configuration.index,
       configuration.revision,
@@ -233,7 +240,7 @@ class OvertureExecutorLaneProcessor extends AudioWorkletProcessor {
     if (
       !Array.isArray(nonce) ||
       nonce.length !== 4 ||
-      this.adapter.overture_adapter_create(...nonce) !== 0
+      this.adapter.overture_adapter_create(ADAPTER, ...nonce) !== 0
     ) {
       throw new Error("invalid replacement executor incarnation");
     }
@@ -245,7 +252,7 @@ class OvertureExecutorLaneProcessor extends AudioWorkletProcessor {
   }
 
   destroy() {
-    this.adapter.overture_adapter_destroy();
+    this.adapter.overture_adapter_destroy(ADAPTER);
     this.destroyed = true;
     this.ready = false;
     this.statusRequest = 0;
@@ -278,10 +285,11 @@ class OvertureExecutorLaneProcessor extends AudioWorkletProcessor {
     }
     new Uint8Array(
       this.adapter.memory.buffer,
-      this.adapter.overture_adapter_command_ptr(),
+      this.adapter.overture_adapter_command_ptr(ADAPTER),
       command.byteLength,
     ).set(command);
     const code = this.adapter.overture_adapter_submit(
+      ADAPTER,
       message.publication >>> 0,
       Math.floor(message.publication / UNSIGNED_32_SCALE) >>> 0,
       command.byteLength,
@@ -290,13 +298,14 @@ class OvertureExecutorLaneProcessor extends AudioWorkletProcessor {
       type: "ack",
       publication: message.publication,
       code,
-      operationLow: this.adapter.overture_adapter_ack_operation_low(),
-      operationHigh: this.adapter.overture_adapter_ack_operation_high(),
+      operationLow: this.adapter.overture_adapter_ack_operation_low(ADAPTER),
+      operationHigh: this.adapter.overture_adapter_ack_operation_high(ADAPTER),
     });
   }
 
   requestStatus(after) {
     this.statusRequest = this.adapter.overture_adapter_request_status(
+      ADAPTER,
       after === null ? 0 : 1,
       after === null ? 0 : after.low >>> 0,
       after === null ? 0 : after.high >>> 0,
@@ -429,24 +438,29 @@ class OvertureExecutorLaneProcessor extends AudioWorkletProcessor {
       if (frames !== AUDIO_BLOCK_FRAMES) {
         throw new Error(`unexpected render quantum: ${frames}`);
       }
-      if (this.adapter.overture_adapter_process(frames) !== 0) {
+      if (this.adapter.overture_adapter_process(ADAPTER, frames) !== 0) {
         throw new Error("executor block failed");
       }
       this.commandSubmitted = false;
       this.flushCommandQueue();
 
-      const actionCount = this.adapter.overture_adapter_action_count();
+      const actionCount = this.adapter.overture_adapter_action_count(ADAPTER);
       if (actionCount > MAXIMUM_BLOCK_ACTIONS) {
         throw new Error(`executor action overflow: ${actionCount}`);
       }
       for (let index = 0; index < actionCount; index += 1) {
         const packed = this.adapter.overture_adapter_action(
+          ADAPTER,
           index,
           ACTION_FIELD_PACKED,
         );
         this.deliverPackedAction(packed);
         this.executorFrame = Number(
-          this.adapter.overture_adapter_action(index, ACTION_FIELD_DUE_FRAME),
+          this.adapter.overture_adapter_action(
+            ADAPTER,
+            index,
+            ACTION_FIELD_DUE_FRAME,
+          ),
         );
         this.deliveredActionCount += 1;
         this.recordCapturedAction(packed, this.executorFrame);
@@ -498,12 +512,13 @@ class OvertureExecutorLaneProcessor extends AudioWorkletProcessor {
 
       if (
         this.statusRequest !== 0 &&
-        this.adapter.overture_adapter_status_ready() === this.statusRequest
+        this.adapter.overture_adapter_status_ready(ADAPTER) ===
+          this.statusRequest
       ) {
         const bytes = new Uint8Array(
           this.adapter.memory.buffer,
-          this.adapter.overture_adapter_status_ptr(),
-          this.adapter.overture_adapter_status_len(),
+          this.adapter.overture_adapter_status_ptr(ADAPTER),
+          this.adapter.overture_adapter_status_len(ADAPTER),
         ).slice();
         const request = this.statusRequest;
         this.statusRequest = 0;

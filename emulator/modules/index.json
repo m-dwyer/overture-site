@@ -6,6 +6,11 @@
       "kind": "midi_fx"
     },
     {
+      "id": "ballast",
+      "name": "Ballast",
+      "kind": "sound_generator"
+    },
+    {
       "id": "dustline",
       "name": "Dustline",
       "kind": "sound_generator"
@@ -21,13 +26,28 @@
       "kind": "sound_generator"
     },
     {
+      "id": "filter",
+      "name": "Multimode Filter",
+      "kind": "audio_fx"
+    },
+    {
       "id": "lobber",
       "name": "Lobber",
       "kind": "audio_fx"
     },
     {
+      "id": "swarf",
+      "name": "Swarf",
+      "kind": "sound_generator"
+    },
+    {
       "id": "trail",
       "name": "Trail Delay",
+      "kind": "audio_fx"
+    },
+    {
+      "id": "vca",
+      "name": "VCA",
       "kind": "audio_fx"
     },
     {

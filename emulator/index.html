@@ -4,7 +4,31 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Overture Emulator</title>
-    <script type="module" crossorigin src="./assets/index-dXsbtkFu.js"></script>
+    <!--
+      A visitor who deep-links here has never been through the Try page, so no
+      isolation shim is registered and there is no SharedArrayBuffer. Registering
+      it here means the emulator does not depend on how it was reached.
+
+      Only fetched when isolation is missing, so the standalone dev server — which
+      sends the headers itself, and serves no such file — never asks for it.
+
+      The path is absolute on purpose, and `web/dist` cannot self-host because of
+      it. Both the registrar and the worker it registers belong to the site, at
+      the origin root, and a Service Worker cannot claim a scope above the path
+      it is served from — so a shim shipped inside `/emulator/` could never cover
+      a framing page. An emulator hosted anywhere but this site must therefore be
+      served with `Cross-Origin-Opener-Policy` and `Cross-Origin-Embedder-Policy`
+      directly. Without one of the two it has no Rack at all: there is a single
+      hosting path and it needs `SharedArrayBuffer`.
+    -->
+    <script>
+      if (!window.crossOriginIsolated && "serviceWorker" in navigator) {
+        const registrar = document.createElement("script");
+        registrar.src = "/coi-register.js";
+        document.head.appendChild(registrar);
+      }
+    </script>
+    <script type="module" crossorigin src="./assets/index-oetF2PZv.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-DZ1B46z-.css">
   </head>
   <body>
