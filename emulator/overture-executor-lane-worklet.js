@@ -1,3 +1,5 @@
+import { ACK_TAGS } from "./generated/executor-wire.js";
+
 // Production emulator lane: one AudioWorkletProcessor hosts the Rust executor
 // adapter, an optional Moveforge MIDI-FX module, and a Moveforge synth module,
 // so a due note reaches the synth inside the same render turn without any
@@ -21,7 +23,7 @@ const ADAPTER = 0;
 const MAXIMUM_BLOCK_ACTIONS = 1536;
 const MAXIMUM_CAPTURE_ACTIONS = 4096;
 const MAXIMUM_CAPTURE_SAMPLES = 4194304;
-const COMMAND_CAPACITY_EXCEEDED = 22;
+const COMMAND_CAPACITY_EXCEEDED = ACK_TAGS["fragment-oversized"];
 const UNSIGNED_32_SCALE = 0x1_0000_0000;
 
 const BYTE_MASK = 0xffn;
